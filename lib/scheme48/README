@@ -1,0 +1,6 @@
+
+Scheme48 is required for some of the original code. 
+
+http://www.s48.org/
+
+Included here is the gzipped tarball for v1.8 of Scheme48.  Unpack, configure, and make it before running any scheme-dependent packages.
