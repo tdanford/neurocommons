@@ -1,0 +1,185 @@
+Simplified ambiguous strain name grammar
+
+strain ::= strain2 '/' lab-part        -- substrain   3.4
+        |  strain2
+
+strain2 ::= host '.' donor '-' alleles-part      -- congenic  5.2
+	 |  host '.' donor '(' donor ')' '-' alleles-part  -- 5.2
+	 |  host
+
+host ::= host2 '(' donor ')' '-' alleles-part      -- congenic  5.2
+      |  host2 '-' alleles-part    -- coisogenic (single locus) 5.1
+      |  host2 ' ' alleles-part    -- mixed inbred  4.2
+      |  host2
+
+[Can donor have a lab-part? I think so.]
+
+donor ::= host2 | 'Cg'
+
+host2 ::= smushed ';' smushed         -- mixed inbred  4.2
+      |  special		      -- e.g. C57BL/6, BALB/c
+      |  special lab-codes         -- e.g. C57BL/10ChPr
+      |  smushed
+
+smushed ::= atomic 'c' atomic	      -- recombinant congenic  4.3
+	 |  atomic 'X' atomic         -- recombinant inbred  4.1
+	 |  atomic lab-codes	      -- this is ambiguous!!
+	 |  atomic                     -- inbred 3.2
+
+alleles-part ::= allele-half
+	      |  allele-half '/' allele-half     -- 5.4 seg. inbred
+
+allele-half ::= allele-part {* ' ' allele-part}
+
+allele-part ::= marker 	 		     -- e.g. 'tth' 5.1
+	     |  marker '<' superscript-part '>'   -- 5.1
+	     |  'Chr ' chromosome-designator '<' strain '>'   -- 5.3 chrom. sub.
+	     |  'mt' '<' strain '>'          -- 5.5 conplastic
+	     |  '(' marker '-' marker ')'    -- 5.2
+	     |  'Tg(' marker {* ',' marker} ')'   -- 4 transgene
+	     |  'Gt(' stuff ')' stuff    -- 5.2
+	     |  'Tn(' stuff ')' stuff
+
+lab-part ::= {optional serial-number} lab-codes
+
+lab-codes ::= {+ lab-code}
+
+serial-number ::= {as previously analyzed}
+
+atomic ::= upper-case {* {upper-case | numeric}}
+        |  numeric-strain
+   **** EXCEPT not the pre-slash part of a "special". ****
+   **** ALSO no internal X unless followed by a digit. ****
+
+special ::= 'C57BL/6'
+	 |  'C57BL/10'
+	 |  'C57BR/a'
+	 |  'C57BR/c'
+	 |  'BALB/c'
+	 |  'DBA/1'
+	 |  'DBA/2'
+
+numeric-strain ::= simple-numeric-strain
+	       	|  simple-numeric-strain upper-case numeric
+		|  '7R75M'
+
+simple-numeric-strain ::= numeric numeric numeric {? numeric}
+
+Notes:
+
+B6J is ambiguous - could be a strain that's simply called 'B6J', or it
+could decompose into B6 + J (i.e. B6/J).
+
+BALB/c is not a substrain of BALB; similarly for the other 'specials'.
+
+'Chr' and 'mt' (conplastic) are not valid markers, treat specially
+
+chromosome-designator can be X, Y, or a number optionally followed by
+'.' and a number
+
+'Numeric strains' include:
+   101, 102, 1194, 129, 129P2, 129X1, 201, 615, 7R75M.
+Note that 129XA parses as 129 X A !
+
+The superscripted 'stuff' never contains a space.
+
+TBD: advanced intercross section 4.4
+
+----------------------------------------
+Problems.
+
+lower case letter 'n' as a serial number??!
+
+  C3.K-H1<b>/nSnJ
+
+Here's the problem list as of 26 July 2010: 55 problem names.
+
+The following are so peculiar they look like mistakes.
+
+  129T1/Sv-Oca2<+> Tyr<c-ch>-Aft/J	    - ??? what is '-' before 'Aft'
+  B6.129P2-Apoe<tm1Unc>-T<8J>               - ??
+  C57BL/10Sn-Del(Y)B10.BR-Y<del>/Ms/Ms	    - ??? extra '/Ms' - long host
+  C57BL/6J-p23-ST1			    - ?
+  FVB/NJ-Tg(Tyr)3412ARpw/Ei-XO		    - ??? '-XO' ?
+  MRL/MpJ-Fas<lpr>/J-ggld       	    - ?? lab codes in funny places
+
+These use the space character in a manner I don't get.  Ordinarily a
+space indicates a 'mixed inbred', but here it seems to be something else.
+
+  A.B6 Tyr<+>-Cyba<nmf333>/J		    - ?
+  A.B6 Tyr<+>-Pde6a<nmf282>/J	            - ?
+  B6.129 Rag2<tm1Fwa> Il2rg<tm1Cgn>-Tg(TcraH-Y,TcrbH-Y)1Pas/Pas  - ??
+  B6.129S4 C4b<tm1Crr>/J-Cal6/GrsrJ	    - ?
+  B6.C3 Pde6b<rd1> Hps4<le>/+ +-Lmx1a<dr-8J>/J    - ?
+  B6.Cg H2<g7>-Tg(Ins2-CD80)3B7Flv/LwnJ	    - ?
+  BALB/cByJ Agtpbp1<pcd-3J>-Bmp5<cfe-se6J>/GrsrJ  - ?
+  C.C3 Tlr4<Lps-d>/J-ru2l/GrsrJ		    - ??
+  C3.MRL Fas<lpr>-Myo7a<sh1-9J>		    - ??
+  C3A Pde6b<rd1>.O20/A-Prph2<Rd2>/J	    - complex donor?
+  C3FeLe.Cg a-Grm1<rcw>/GrsrJ		    - ?
+  C57BL/6J Tyr<c-2J>-awag/GrsrJ		    - ?
+  MEV-O.CAST-A D2Mit57/TyJ		    - ???
+  MRL/MpJ Fas<lpr>-Cal2/J		    - ??
+  MRL/MpJ Fas<lpr>-Foxq1<sa-J>/J	    - ??
+  NOD.Cg Prkdc<scid>-Tg(CSF2)2Ygy Tg(IL3)1Ygy Tg(KITLG)3Ygy/YgyJ - ??
+  SJL.Cg Thy1<a>-Noxo1<hslt>/J              - ??
+
+See section 4.2, mixed inbred
+
+  B6C3Fe a/a-Csf1<op>/J			    - ? 
+  B6C3Fe a/a-Ptch1<mes>			    - ? 
+  B6EiC3 a/A-Vss/GrsrJ			    - ? 
+  C3FeLe.B6 a/a-Ptpn6<me>/J		    - 
+  C3HeB/FeJLe a/a-gnd/J			    - 
+
+The following are just deficiencies of my parser.
+
+  (C57BL/6JEiJ x C3Sn.BLiA-Pde6b<+>)F1      - NYI
+  129S-Hba-a1<tm1Led>/J     		    - gene with '-'
+  129S-Hba-x<tm1Led>/J			    - gene with '-'
+  B6-A<w-J>.CBy-Eda<Ta-By>/J                - complex host
+  B6-A<w-J>.Cg-Eda<Ta-6J> +/+ Ar<Tfm>/J     - complex host
+  B6-Pax3<Sp>.Cg-N/J	      		    - complex host
+  B6.Cg-Il2rb<tm1Mak> Tg(CD2-Il2rb)A-1Ttg   - 'A-1' is part of Tg notation
+  B6.Cg-Il2rb<tm1Mak> Tg(CD2-Il2rb)H-1Ttg   - 'H-1' is part of Tg notation
+  B6.Cg-Tg(Prnp-APP)A-2Dbo/J		    - 'A-2' is part of Tg notation
+  C.Cg-Tcrb-V<a>			    - 'Tcrb-V' is a gene
+  C57BL/6J-Chr X.2<PWD/Ph>/ForeJ	    - chromosome 'X.2'
+  B6.Cg-Tg(Gt(ROSA)26Sor-EGFP)I1Able/J      - nested parens!
+  CBy.Cg-Tg(Gt(ROSA)26Sor-EGFP)I1Able/J	    - nested parens!
+  FVB-Tg(Gt(ROSA)26Sor-EGFP)130910Eps/Mmmh  - nested parens!
+  FVB/N-Tg(MMTV-PyVT*Y315F*Y322F)Db-1Mul    - 'Db-1' part of Tg notation
+  MRL-Fas<lpr>.129P2(B6)-B2m<tm1Unc>	    - complex host
+  B6.129P2-Tcrd-V1<tm1Kjk>		    - ?  gene 'Tcrd-V1'
+
+Verify hunch that these involve complex donor strain names
+
+  B6.C-H2-K<bm1>/ByBir-Gusb<mps>/BrkJ	    - allele is 'H2-K<bm1>'
+  B6.C-H2-K<bm1>/ByBir-Gusb<mps>/J   	    - donor is 'C-H2-K<bm1>/ByBir'
+  MRL.129P2(B6)-B2m<tm1Unc>/Dcr-Dab1<scm-2J>/J  - donor is '129.../Dcr'
+  B10.A-H2<h4>/(4R)SgDvEg-Sh3pxd2b<nee>	    - complex donor
+  B10.D1-H2<q>/SgJ-shmy<2J>/GrsrJ	    - ? complex donor
+  B10.D2-H2<d>/nSnJ-Shh<Hx>           	    - ? complex donor
+  B10.D2-H2<d>/oSn-Shh<Hx>           	    - ? complex donor
+  B6.C-H38<c>/By-Kit<W-56J>/J               - complex donor?
+  B6.CAST-Gpi1<a>.Cg-Hba<th-J>              - complex donor?
+  C3A.BLiA-Pde6b<+>.O20-Prph2<Rd2>/J	    - complex donor?
+
+Here's a funny one: (space after '-')
+
+ MGI:4421519	B6.Cg- Bcl2l11<tm1.1Ast> Bmf<tm2.1Rjd>	congenic
+
+Here's a funny one: to what does the lab code apply?
+
+ MGI:3617481	B6.Cg/NTac-Foxn1<nu>	congenic
+
+Here's a mixin strain with what appears to be a lab code.
+We also see (CBy), (C3Rl)
+
+ MGI:2164797	B6.RBF(C3Fe)-Nek1<kat>/J	congenic
+ MGI:2165376	CHa.SWV(C3Fe)-Mbp<shi>/J	congenic
+
+Host can also have a lab code.
+
+ MGI:3576860	C3fBi.AK-Rb(6.15)1Ald/StmRbrc	congenic
+ MGI:4358731	CByJ.B6(Cg)-Rag2<tm1Cgn>/J	congenic

@@ -1,0 +1,5 @@
+51af24e1ae228f96be81b0e03ac69931  Config-template.pl
+6ee23712cebbf9dd580858ba9ed76555  ./allele.ttl
+e1739329f34003e7be74d942de0459a0  ./BIB_PubMed.ttl
+63aeb1608a84a023f69f775589d6b5f8  ./MGI_PhenotypicAllele.ttl
+9046651712e1169f2a839cf44d006e93  ./parsed-strains.ttl
