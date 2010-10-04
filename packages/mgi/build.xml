@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="mgi-bundle" default="bundle" basedir=".">
+    <description>
+    </description>
+
+	<property name="data" location="data" />
+	<property name="mgiserver" value="ftp.informatics.jax.org" />
+	<property name="mgipath" value="pub/reports" />
+	<property name="email" value="tdanford@gmail.com" />
+	<property name="S48FLAGS" value="-h 6000000" />
+	<property name="COMMON" value="/Users/tdanford/Documents/eclipse-workspace/nc_packages/common" />
+
+	<property name="test" value="test.txt" />
+
+	<target name="init">
+		<tstamp/>
+		<mkdir dir="${data}"/>
+	</target>
+
+	<target name="parsed-strains" depends="">
+		<property name="mgistrain" value="${data}/MGI_Strain.rpt" />
+		<property name="parsedstrains" value="${data}/parsed-strains.ttl" />
+		<exec executable="bash">
+			<arg value="-c"/>
+			<arg value="(echo ,set batch ; 
+			echo ,translate =common ${COMMON}/scheme ; 
+			echo ,exec ,load =common/s48config.exec ; 
+			echo ,open regexps uri rdf signals tables ;  
+			echo ,load parse2.sch genturtle.sch ; 
+			echo '(transduce-turtle &quot;${mgistrain}&quot; &quot;${parsedstrains}&quot;)' ) 
+			| scheme48 ${S48FLAGS}" /> 
+		</exec>
+	</target>
+
+	<target name="allele" depends="">
+		<property name="phenoallele" value="${data}/MGI_PhenotypicAllele.rpt" />
+		<property name="allele" value="${data}/allele.ttl" />
+		<exec executable="bash">
+			<arg value="-c"/>
+			<arg value="
+			(echo ,set batch ;
+			echo ,translate =common ${COMMON}/scheme ;
+			echo ,exec ,load =common/s48config.exec ;
+			echo ,open regexps uri rdf signals ;
+			echo ,load alleles.sch ;
+			echo '(transduce-alleles &quot;${phenoallele}&quot; &quot;${allele}&quot;)' )
+			| scheme48 ${S48FLAGS}" /> 
+		</exec>
+	</target>
+
+	<target name="download" depends="init" description="download the raw bundle files." >
+		<!-- <get src="http://www.apache.org/dist/ant/KEYS" dest="KEYS" verbose="true" usetimestamp="true"/> -->
+
+		<ftp action="get"
+				server="${mgiserver}"
+				remotedir="${mgipath}"
+				depends="yes"
+				verbose="yes"
+				userid="anonymous"
+				password="${email}">
+
+			<fileset dir="${data}">
+				<include name="MGI_Strain.rpt"/>
+				<include name="BIB_PubMed.rpt"/>
+				<include name="MGI_PhenotypicAllele.rpt"/>
+				<include name="MGI_QTLAllele.rpt"/>
+				<include name="MGI_PhenoGenoMP.rpt"/> 
+			</fileset>
+		</ftp>
+	</target>
+
+	<target name="bundle" depends="download,parsed-strains,allele">
+	</target>
+
+	<target name="clean" description="clean up" >
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+</project>
