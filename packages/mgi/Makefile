@@ -3,12 +3,14 @@
 all: bundle
 
 PACKAGE=mgi
--include config.mk
--include ../default.mk
+#-include config.mk
+-include default.mk
 
 MGI=ftp://ftp.informatics.jax.org/pub/reports
-FETCH=../common/bin/ftp-validate
+FETCH=$(COMMON)/bin/ftp-validate
 TAB2N3=$(COMMON)/python/tab2n3.py
+
+S48=/Users/tdanford/Software/scheme48/bin/scheme48
 S48FLAGS=-h 6000000
 
 BUNDLE_FILES=$(BUNDLE)/parsed-strains.ttl \
@@ -19,7 +21,7 @@ bundle: $(BUNDLE_FILES)
 
 $(BUNDLE)/parsed-strains.ttl: $(CACHE)/MGI_Strain.rpt parse2.sch genturtle.sch
 	(echo ,set batch ;\
-	 echo ,translate =common ../common/scheme ;\
+	 echo ,translate =common $(COMMON)/scheme ;\
 	 echo ,exec ,load =common/s48config.exec ;\
 	 echo ,open regexps uri rdf signals tables ;\
 	 echo ,load parse2.sch genturtle.sch ;\
@@ -28,7 +30,7 @@ $(BUNDLE)/parsed-strains.ttl: $(CACHE)/MGI_Strain.rpt parse2.sch genturtle.sch
 
 $(BUNDLE)/allele.ttl: $(CACHE)/MGI_PhenotypicAllele.rpt alleles.sch
 	(echo ,set batch ;\
-	 echo ,translate =common ../common/scheme ;\
+	 echo ,translate =common $(COMMON)/scheme ;\
 	 echo ,exec ,load =common/s48config.exec ;\
 	 echo ,open regexps uri rdf signals ;\
 	 echo ,load alleles.sch ;\
@@ -106,7 +108,7 @@ cache: $(CACHE)/MGI_Strain.rpt \
 #       $(CACHE)/tab2n3.py
 
 $(CACHE)/tab2n3.py:
-	../common/bin/http-validate \
+	$(COMMON)/bin/http-validate \
 	    "http://www.w3.org/2000/10/swap/tab2n3.py" $@
 
 $(CACHE)/%.rpt:
@@ -115,7 +117,7 @@ $(CACHE)/%.rpt:
 IMSR=http://www.findmice.org/fetch?page=imsrReport&report=repository&print=data&site=
 
 $(CACHE)/imsr/1.tab:
-	../common/bin/http-validate "$(IMSR)1" $@
+	$(COMMON)/bin/http-validate "$(IMSR)1" $@
 
 # Also KOMP and EUCOMM alleles
 
