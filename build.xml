@@ -1,6 +1,7 @@
-<project name="neurocommons-ant" default="dist" basedir=".">
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="neurocommons-ant" default="build" basedir=".">
     <description>
-		Example build file.
+		The 'neurocommons' project is my personal implementation of two Neurocommons-style packages for Alzforum and Mouse data.
     </description>
 
 	<property name="src" location="src"/>
