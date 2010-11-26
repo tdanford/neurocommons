@@ -23,6 +23,7 @@ public class ModelCache {
 	protected static String AntibodySolution = Antibodyuri + "antibody_solution";
 	protected static String AntibodyOffer = Antibodyuri + "antibody_offer";
 
+	protected static String InformationContentEntity = OBIuri + "IAO_0000030";
 	protected static String ModelNumber = OBIuri + "IAO_0000017";
 	protected static String ObjectAcquisition = OBIuri + "OBI_0600010";
 	protected static String SupplierRole = OBIuri + "OBI_0000018";
@@ -54,12 +55,15 @@ public class ModelCache {
 			if(Modifier.isStatic(mod) && field.getType().equals(String.class) && !field.getName().endsWith("uri")) {
 				String name = field.getName();
 				try {
-					if(Character.isUpperCase(name.charAt(0))) { 
-						Resource r = model.getResource((String)field.get(this));
+					String uri = (String)field.get(this);
+					if(Character.isUpperCase(name.charAt(0))) {
+						Resource r = model.getResource(uri);
 						resources.put(field.getName(), r);
+						resources.put(uri, r);
 					} else { 
-						Property p = model.getProperty((String)field.get(this));
-						properties.put(field.getName(), p);						
+						Property p = model.getProperty(uri);
+						properties.put(field.getName(), p);	
+						properties.put(uri, p);
 					}
 				} catch (IllegalAccessException e) {
 					e.printStackTrace(System.err);

@@ -9,7 +9,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 import java.util.*;
 
-public class CommonEnv extends ModelCache {
+public class CommonEnv extends ModelBuilder {
 
 	private GenSym sym;
 	

@@ -10,13 +10,10 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-public class OfferTemplater extends ModelCache {
+public class OfferTemplater extends CommonEnv {
 	
-	private CommonEnv env;
-	
-	public OfferTemplater(CommonEnv env) {
-		super(env.getModel());
-		this.env = env;
+	public OfferTemplater(GenSym sym, OntModel m) {
+		super(sym, m);
 	}
 	
 	public void template(
@@ -27,27 +24,29 @@ public class OfferTemplater extends ModelCache {
 			String[] solutionParts, 
 			String[] solutionQualities) {
 		
-		Individual catalogNumber = env.getCatalogNumber(catalog);
+		Individual catalogNumber = getCatalogNumber(catalog);
 		
-		OntClass antibodyOffer = env.getAntibodyOffer(offer);
+		OntClass antibodyOffer = getAntibodyOffer(offer);
 		OntClass antibodySolution = resources.get("AntibodySolution").as(OntClass.class);
-		OntClass antibodyCls = env.getAntibody(antibody);
+		OntClass antibodyCls = getAntibody(antibody);
 		
 		antibodyOffer.addSuperClass(hasValue("has_part", catalogNumber));
 
 		OntClass cls = intersection(antibodySolution, someValues("has_grain", antibodyCls));
+		
 		for(String solutionPart : solutionParts) { 
-			cls = intersection(cls, someValues("has_part", env.getSolutionPart(solutionPart)));
+			cls = intersection(cls, someValues("has_part", getSolutionPart(solutionPart)));
 		}
+		
 		for(String solutionQuality : solutionQualities) { 
-			cls = intersection(cls, someValues("bearer_of", env.getSolutionQuality(solutionQuality)));
+			cls = intersection(cls, someValues("bearer_of", getSolutionQuality(solutionQuality)));
 		}
 		
 		cls = intersection(resources.get("SuppliedMaterialRole").as(OntClass.class),
 				someValues("inheres_in", cls));
 		
 		OntClass cls2 = intersection(resources.get("SupplierRole").as(OntClass.class),
-				hasValue("inheres_in", env.getOrganization(offeringOrganization)));
+				hasValue("inheres_in", getOrganization(offeringOrganization)));
 		
 		cls = intersection(
 				resources.get("ObjectAcquisition").as(OntClass.class),

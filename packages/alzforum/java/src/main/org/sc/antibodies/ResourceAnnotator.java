@@ -20,17 +20,20 @@ public class ResourceAnnotator {
 	private Context currentContext;
 	private Set<Resource> avoidResources;
 	
-	public ResourceAnnotator(AdaptiveMatcher m) { 
-		this(m, new Context());
+	private ResourceMatchCallback callback;
+	
+	public ResourceAnnotator(AdaptiveMatcher m, ResourceMatchCallback cb) { 
+		this(m, cb, new Context());
 	}
 	
-	public ResourceAnnotator(AdaptiveMatcher m, Context c) { 	
-		this(m, c, null);
+	public ResourceAnnotator(AdaptiveMatcher m, ResourceMatchCallback cb, Context c) { 	
+		this(m, cb, c, null);
 	}
 	
-	public ResourceAnnotator(AdaptiveMatcher m, Context c, Set<Resource> avoid, Resource... restAvoid) { 
+	public ResourceAnnotator(AdaptiveMatcher m, ResourceMatchCallback cb, Context c, Set<Resource> avoid, Resource... restAvoid) { 
 		currentContext = c;
 		matcher = m;
+		callback = cb;
 		avoidResources = new HashSet<Resource>();
 		if(avoid != null) { avoidResources.addAll(avoid); }
 		for(Resource r : restAvoid) { 
@@ -38,11 +41,13 @@ public class ResourceAnnotator {
 		}
 	}
 	
-	public Collection<Match> annotateResource(Resource rec) throws MatcherException {
+	public void registerResourceAnnotations(Resource rec) throws MatcherException { 
+		
+	}
+	
+	public void annotateResource(Resource rec) throws MatcherException {
 		
 		avoidResources.add(rec);
-		
-		LinkedList<Match> allMatches = new LinkedList<Match>();
 		
 		StmtIterator stmts = rec.listProperties();
 		try { 
@@ -64,8 +69,10 @@ public class ResourceAnnotator {
 						String stringLiteral = objectLiteral.getString();
 						
 						Collection<Match> matches = matcher.findMatches(ctxt, stringLiteral);
-
-						allMatches.addAll(matches);
+						
+						for(Match m : matches) { 
+							callback.matchFound(rec, propertyName, m);
+						}
 					}
 
 				} else { 
@@ -74,9 +81,9 @@ public class ResourceAnnotator {
 
 					if(!avoidResources.contains(objectResource)) { 
 						ResourceAnnotator annotator = 
-							new ResourceAnnotator(matcher, ctxt, avoidResources, objectResource);
+							new ResourceAnnotator(matcher, callback, ctxt, avoidResources, objectResource);
 
-						allMatches.addAll(annotator.annotateResource(objectResource));
+						annotator.annotateResource(objectResource);
 					}
 				}
 			}
@@ -84,7 +91,5 @@ public class ResourceAnnotator {
 		} finally { 
 			stmts.close();
 		}
-		
-		return allMatches;
 	}
 }
