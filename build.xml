@@ -1,14 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="neurocommons-ant" default="build" basedir=".">
-    <description>
-		The 'neurocommons' project is my personal implementation of two Neurocommons-style packages for Alzforum and Mouse data.
+<project 
+    name="neurocommons" default="build" basedir="."
+    xmlns:rsel="antlib:org.apache.tools.ant.types.resources.selectors"
+    >
+    <description> The 'neurocommons' project is my personal implementation of two Neurocommons-style packages for Alzforum and Mouse data.
     </description>
 
-	<property name="src" location="src"/>
+	<property name="project"  value="webherd"/>
+
+    <property name="java" location="java" />
+    <property name="mgi" location="mgi" />
+    <property name="alzforum" location="alzforum" />
+
+    <property name="mgisrc" location="${mgi}/java/src" />
+    <property name="alzforumsrc" location="${alzforum}/java/src" />
+	<property name="src" location="${java}/src"/>
+
 	<property name="build" location="build"/>
 	<property name="dist"  location="dist"/>
 	<property name="lib"  location="lib"/>
-	<property name="project"  location="neurocommons-ant"/>
+
+
+    <property name="webherd-jar" location="${dist}/lib/${project}.jar" />
+    <property name="webherd-main-class" value="org.sc.webherd.WebHerd" />
 
 	<target name="init">
 		<tstamp/>
@@ -28,25 +42,31 @@
 			</classpath>
 		</javac> 
 	</target>
+    
+    <path id="webherd-classpath">
+        <pathelement location="${webherd-jar}" />
+        <fileset dir="${lib}" includes="**/*.jar"/>
+    </path>
+
+    <target name="run-webherd" depends="jar" description="Runs webherd." >
+        <java classname="${webherd-main-class}"> 
+            <jvmarg value="-Xmx300m" />
+            <classpath refid="webherd-classpath" />
+        </java>
+    </target>
 
 	<target name="jar" depends="build" description="generate the jar file" >
 		<mkdir dir="${dist}/lib"/>
+        <property name="timestamped" location="${dist}/lib/${project}-${DSTAMP}.jar" />
 		<!-- <jar jarfile="${dist}/lib/${project}-${DSTAMP}.jar" basedir="${build}"/> -->
 
-		<jar destfile="${dist}/lib/${project}-${DSTAMP}.jar">
-			<fileset dir="${build}/" />
-			<restrict>
-				<name name="**/*.class"/>
-				<archives>
-					<zips>
-						<fileset dir="${lib}" includes="**/*.jar"/>
-					</zips>
-				</archives>
-			</restrict>
-			<manifest>
-				<!-- <attribute name="Main-Class" value="MAIN-CLASS"/> -->
-			</manifest>
-		</jar>
+        <jar destfile="${timestamped}">
+				<fileset dir="${build}" />
+                <manifest>
+                        <attribute name="Main-Class" value="${webherd-main-class}"/> 
+                </manifest>
+        </jar>
+        <copy file="${timestamped}" tofile="${webherd-jar}" />
 	</target>
 
 	<target name="clean" description="clean up" >
