@@ -1,4 +1,4 @@
-package org.sciencecommons.ant.tasks;
+package org.sc.rdfherd.ant;
 
 import java.util.*;
 
