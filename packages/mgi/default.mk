@@ -51,20 +51,20 @@ EXPORT_ROOT?=$(error "rdfherd bundles directory")
 #
 # CACHE?=$(BUILD_ROOT)/cache/$(PACKAGE)
 
-CACHE?=$(error "Cache directory")
+CACHE?=/Users/tdanford/Documents/Programming/github/neurocommons/packages/mgi/cache
 
 # The default location of the intermediate file directory.
 #
 # WORK?=$(BUILD_ROOT)/work/$(PACKAGE)
 
-WORK?=$(error "Work directory")
-
+WORK?=/Users/tdanford/Documents/Programming/github/neurocommons/packages/mgi/work
+ 
 # The default location of the bundle target directory, where the new
 # version of the bundle will be constructed.
 #
 # BUNDLE?=$(BUILD_ROOT)/bundles/$(PACKAGE)
 
-BUNDLE?=$(error "Bundle diretory")
+BUNDLE?=/Users/tdanford/Documents/Programming/github/neurocommons/packages/mgi/bundle
 
 # -- Cross-references needed for particular packages --
 
